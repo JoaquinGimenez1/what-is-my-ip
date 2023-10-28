@@ -14,6 +14,9 @@ jobs:
       - name: Checkout latest version
         uses: actions/checkout@v3
 
+      - name: Print events
+        run: echo ${{github.event}}
+
       - name: Set production variable
         if: github.event.ref_name == 'main'
         run: echo "WORKER_ENV=production" >> $GITHUB_ENV
