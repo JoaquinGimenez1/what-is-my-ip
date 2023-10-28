@@ -14,19 +14,20 @@ jobs:
       - name: Checkout latest version
         uses: actions/checkout@v3
 
-      - name: Print events
-        run: echo ${{github.event}}
+      # - name: Dump GitHub context
+      #   env:
+      #     GITHUB_CONTEXT: ${{ toJson(github) }}
+      #   run: echo "$GITHUB_CONTEXT"
 
-      - name: Set production variable
-        if: github.event.ref_name == 'main'
-        run: echo "WORKER_ENV=production" >> $GITHUB_ENV
-
-      - name: Set staging variable
-        if: github.event.ref_name == 'staging'
-        run: echo "WORKER_ENV=staging" >> $GITHUB_ENV
-
-      - name: Deploy to GITHUB_ENV
+        - name: Deploy to staging
+        if: github.ref_name == 'staging'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env ${{ env.WORKER_ENV }}
+          command: deploy --env staging
+
+      - name: Deploy to production
+        if: github.ref_name == 'main'
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CF_API_TOKEN }}
