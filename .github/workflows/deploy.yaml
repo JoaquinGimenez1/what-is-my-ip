@@ -4,14 +4,19 @@ on:
   push:
     branches:
       - main
+      - staging
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     name: Deploy
     steps:
-      - uses: actions/checkout@v3
-      - name: Deploy
+      - name: Checkout latest version
+        uses: actions/checkout@v3
+      - name: Set GITHUB_ENV variable
+        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+      - name: Deploy to GITHUB_ENV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: deploy --env $GITHUB_ENV
