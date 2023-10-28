@@ -14,12 +14,7 @@ jobs:
       - name: Checkout latest version
         uses: actions/checkout@v3
 
-      # - name: Dump GitHub context
-      #   env:
-      #     GITHUB_CONTEXT: ${{ toJson(github) }}
-      #   run: echo "$GITHUB_CONTEXT"
-
-        - name: Deploy to staging
+      - name: Deploy to staging
         if: github.ref_name == 'staging'
         uses: cloudflare/wrangler-action@v3
         with:
