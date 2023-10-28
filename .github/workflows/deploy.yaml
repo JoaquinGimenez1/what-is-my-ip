@@ -24,4 +24,4 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env "${{ WORKER_ENV }}"
+          command: deploy --env $WORKER_ENV
