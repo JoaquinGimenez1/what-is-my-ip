@@ -13,14 +13,17 @@ jobs:
     steps:
       - name: Checkout latest version
         uses: actions/checkout@v3
-      - name: Dump GitHub context
-        env:
-          GITHUB_CONTEXT: ${{ toJson(github) }}
-        run: echo "$GITHUB_CONTEXT"
-      - name: Set GITHUB_ENV variable
-        run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
+
+      - name: Set production variable
+        if: github.event.pull_request.base.ref == 'main' # check the target branch if it's master
+        run: echo "WORKER_ENV=production" >> $GITHUB_ENV
+
+      - name: Set production variable
+        if: github.event.pull_request.base.ref == 'staging' # check the target branch if it's master
+        run: echo "WORKER_ENV=production" >> $GITHUB_ENV
+
       - name: Deploy to GITHUB_ENV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env $GITHUB_ENV
+          command: deploy --env $WORKER_ENV
