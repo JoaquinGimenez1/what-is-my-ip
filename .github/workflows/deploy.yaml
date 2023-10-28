@@ -15,15 +15,15 @@ jobs:
         uses: actions/checkout@v3
 
       - name: Set production variable
-        if: github.event.ref_name == 'main' # check the target branch if it's master
+        if: github.event.ref_name == 'main'
         run: echo "WORKER_ENV=production" >> $GITHUB_ENV
 
       - name: Set staging variable
-        if: github.event.ref_name == 'staging' # check the target branch if it's master
+        if: github.event.ref_name == 'staging'
         run: echo "WORKER_ENV=staging" >> $GITHUB_ENV
 
       - name: Deploy to GITHUB_ENV
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env $WORKER_ENV
+          command: deploy --env ${{ env.WORKER_ENV }}
