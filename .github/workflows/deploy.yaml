@@ -13,6 +13,10 @@ jobs:
     steps:
       - name: Checkout latest version
         uses: actions/checkout@v3
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJson(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: Set GITHUB_ENV variable
         run: echo "BRANCH=$(echo $GITHUB_REF | cut -d'/' -f 3)" >> $GITHUB_ENV
       - name: Deploy to GITHUB_ENV
