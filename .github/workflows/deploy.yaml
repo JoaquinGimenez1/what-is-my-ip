@@ -8,21 +8,20 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
     name: Deploy
+    runs-on: ubuntu-latest
+    env:
+      WORKER_ENV: staging
     steps:
       - name: Checkout latest version
         uses: actions/checkout@v3
 
-      - name: Deploy to staging
-        if: github.ref_name == 'staging'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env staging
-
-      - name: Deploy to production
+      - name: Set WORKER_ENV to prod
         if: github.ref_name == 'main'
+        run: echo "production" >> $WORKER_ENV
+
+      - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          command: deploy --env "${{ WORKER_ENV }}"
