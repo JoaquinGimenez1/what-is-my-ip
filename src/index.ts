@@ -34,10 +34,11 @@ export default {
     const country = headers.get('cf-ipcountry');
 
     // Get Cloudflare object
-    const cf = request.cf || {};
+    const { asn, timezone, city, region, asOrganization } = request.cf || {};
 
     // Build payload
-    const payload = { ip, country, cloudflare: cf };
+    const payload = { ip, country, asn, timezone, city, region, asOrganization };
+
     // Return payload as JSON
     return new Response(JSON.stringify(payload));
   },
