@@ -33,33 +33,12 @@ export default {
     const ip = headers.get('cf-connecting-ip');
     const country = headers.get('cf-ipcountry');
 
-    const getIPInfoData = async (ip: string): Promise<any> => {
-      const url = `https://ipinfo.io/${ip}?token=${env.IPINFO_TOKEN}`;
-      // const modifiedRequest = new Request(url, request);
-
-      const ipData = await fetch(url);
-      return ipData;
-    };
-
-    let ipInfoData;
-    if (ip !== undefined) {
-      ipInfoData = await getIPInfoData(ip);
-    }
+    // Get Cloudflare object
+    const cf = request.cf || {};
 
     // Build payload
-    const payload = { ip, country, ipInfoData };
+    const payload = { ip, country, cloudflare: cf };
     // Return payload as JSON
     return new Response(JSON.stringify(payload));
   },
 };
-
-// # With Bearer token
-// $ curl -H "Authorization: Bearer dbff1db40ed83d" ipinfo.io
-
-// # With token query parameter
-// $ curl ipinfo.io?token=dbff1db40ed83d
-
-// # Get details for your own IP address over HTTPS
-// $ curl https://ipinfo.io?token=dbff1db40ed83d
-
-// https://ipinfo.io/47.211.216.202?token=dbff1db40ed83d
