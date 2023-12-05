@@ -33,9 +33,11 @@ export default {
     const ip = headers.get('cf-connecting-ip');
     const country = headers.get('cf-ipcountry');
     // Get Cloudflare object
-    const { asn, timezone, city, region, asOrganization } = request.cf || {};
+    const { city, region, asn, asOrganization, timezone } = request.cf || {};
+    // Build useful AS information
+    const org = `AS${asn} ${asOrganization}`;
     // Build payload
-    const payload = { ip, city, region, country, org: `AS${asn} ${asOrganization}`, timezone };
+    const payload = { ip, city, region, country, org, timezone };
     // Return payload as JSON
     return new Response(JSON.stringify(payload, null, 2));
   },
