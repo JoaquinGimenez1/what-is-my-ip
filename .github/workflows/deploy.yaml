@@ -22,6 +22,8 @@ jobs:
           secrets: |
             IPINFO_TOKEN
           command: deploy --env ${{ github.ref_name }}
+          postCommands: |
+            wrangler secret put IPINFO_TOKEN=${{ env.IPINFO_TOKEN }}
         env:
           IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN_STAGING }}
 
