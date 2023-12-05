@@ -19,10 +19,18 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          secrets: |
+            IPINFO_TOKEN
           command: deploy --env ${{ github.ref_name }}
+        env:
+          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN_STAGING }}
 
       - name: Deploy to prod
         if: github.ref_name == 'main'
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
+          secrets: |
+            IPINFO_TOKEN
+        env:
+          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN_PROD }}
