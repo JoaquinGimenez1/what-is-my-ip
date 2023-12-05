@@ -19,13 +19,10 @@ jobs:
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
-          secrets: |
-            IPINFO_TOKEN
+          # Error while adding secrets to staging environment.
+          # It pushes to production and replaces the prod api key
+          # IPINFO_TOKEN was created using CLI
           command: deploy --env ${{ github.ref_name }}
-          postCommands: |
-            wrangler secret put IPINFO_TOKEN=${{ env.IPINFO_TOKEN }}
-        env:
-          IPINFO_TOKEN: ${{ secrets.IPINFO_TOKEN_STAGING }}
 
       - name: Deploy to prod
         if: github.ref_name == 'main'
