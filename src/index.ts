@@ -35,7 +35,7 @@ export default {
     // Get Cloudflare object
     const { asn, timezone, city, region, asOrganization } = request.cf || {};
     // Build payload
-    const payload = { ip, city, region, country, asn, org: asOrganization, timezone };
+    const payload = { ip, city, region, country, org: `AS${asn} ${asOrganization}`, timezone };
     // Return payload as JSON
     return new Response(JSON.stringify(payload, null, 2));
   },
