@@ -1,9 +1,27 @@
 name = "what-is-my-ip"
 main = "src/index.ts"
 compatibility_date = "2023-10-25"
+routes = [
+    { pattern = "ip.joaquingimenez.com", custom_domain = true }
+]
+
+[[durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
 
 [env.staging]
 name = "what-is-my-ip-staging"
+routes = [
+    { pattern = "ip-staging.joaquingimenez.com", custom_domain = true }
+]
+
+[[env.staging.durable_objects.bindings]]
+name = "RATE_LIMITER"
+class_name = "RateLimiter"
+
+[[migrations]]
+tag = "v1"
+new_classes = ["RateLimiter"]
 
 # Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
 # Note: Use secrets to store sensitive data.
@@ -11,22 +29,8 @@ name = "what-is-my-ip-staging"
 # [vars]
 # MY_VARIABLE = "production_value"
 
-
 # Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.
 # Docs: https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
 # [[r2_buckets]]
 # binding = "MY_BUCKET"
 # bucket_name = "my-bucket"
-
-# Bind a Durable Object. Durable objects are a scale-to-zero compute primitive based on the actor model.
-# Durable Objects can live for as long as needed. Use these when you need a long-running "server", such as in realtime apps.
-# Docs: https://developers.cloudflare.com/workers/runtime-apis/durable-objects
-[[durable_objects.bindings]]
-name = "RATE_LIMITER"
-class_name = "RateLimiter"
-
-# Durable Object migrations.
-# Docs: https://developers.cloudflare.com/workers/learning/using-durable-objects#configure-durable-object-classes-with-migrations
-[[migrations]]
-tag = "v1"
-new_classes = ["RateLimiter"]
