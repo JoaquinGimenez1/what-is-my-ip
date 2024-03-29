@@ -53,23 +53,43 @@ export default {
   },
 };
 
+// Durable Object
 export class RateLimiter implements DurableObject {
   static readonly milliseconds_per_request = 1;
-  static readonly milliseconds_for_grace_period = 1000;
+  static readonly milliseconds_for_updates = 30000;
+  static readonly capacity = 5;
 
-  nextAllowedTime: number;
+  state: DurableObjectState;
+  tokens: number;
 
-  constructor(_state: DurableObjectState, _env: Env) {
-    this.nextAllowedTime = 0;
+  constructor(state: DurableObjectState, _env: Env) {
+    this.state = state;
+    this.tokens = RateLimiter.capacity;
   }
 
   async fetch(_request: Request): Promise<Response> {
-    const now = Date.now();
+    this.checkAndSetAlarm();
 
-    this.nextAllowedTime = Math.max(now, this.nextAllowedTime);
-    this.nextAllowedTime += RateLimiter.milliseconds_per_request;
+    let response = { milliseconds_to_next_request: RateLimiter.milliseconds_per_request };
+    if (this.tokens > 0) {
+      this.tokens -= 1;
+      response.milliseconds_to_next_request = 0;
+    }
 
-    const value = Math.max(0, this.nextAllowedTime - now - RateLimiter.milliseconds_for_grace_period);
-    return new Response(JSON.stringify({ milliseconds_to_next_request: value }));
+    return new Response(JSON.stringify(response));
+  }
+
+  async checkAndSetAlarm() {
+    let currentAlarm = await this.state.storage.getAlarm();
+    if (currentAlarm == null) {
+      this.state.storage.setAlarm(Date.now() + RateLimiter.milliseconds_for_updates * RateLimiter.milliseconds_per_request);
+    }
+  }
+
+  async alarm() {
+    if (this.tokens < RateLimiter.capacity) {
+      this.tokens = Math.min(RateLimiter.capacity, this.tokens + RateLimiter.milliseconds_for_updates);
+      this.checkAndSetAlarm();
+    }
   }
 }
