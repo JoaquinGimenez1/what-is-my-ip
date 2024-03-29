@@ -56,7 +56,7 @@ export default {
 // Durable Object
 export class RateLimiter implements DurableObject {
   static readonly milliseconds_per_request = 1;
-  static readonly milliseconds_for_updates = 10000;
+  static readonly milliseconds_for_updates = 30000;
   static readonly capacity = 5;
 
   state: DurableObjectState;
