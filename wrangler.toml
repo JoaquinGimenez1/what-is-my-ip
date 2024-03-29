@@ -1,21 +1,22 @@
-name = "what-is-my-ip"
+# Default env would be `dev`
+name = "what-is-my-ip-dev"
 main = "src/index.ts"
-compatibility_date = "2023-10-25"
+compatibility_date = "2024-03-29"
 routes = [
-    { pattern = "ip.joaquingimenez.com", custom_domain = true }
+    { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
 ]
 
 [[durable_objects.bindings]]
 name = "RATE_LIMITER"
 class_name = "RateLimiter"
 
-[env.staging]
-name = "what-is-my-ip-staging"
+[env.production]
+name = "what-is-my-ip"
 routes = [
-    { pattern = "ip-staging.joaquingimenez.com", custom_domain = true }
+    { pattern = "ip.joaquingimenez.com", custom_domain = true }
 ]
 
-[[env.staging.durable_objects.bindings]]
+[[env.production.durable_objects.bindings]]
 name = "RATE_LIMITER"
 class_name = "RateLimiter"
 
