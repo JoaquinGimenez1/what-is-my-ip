@@ -9,7 +9,7 @@ on:
 jobs:
   production-deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy to Production
     if: github.ref == 'refs/heads/main'
     steps:
       - uses: actions/checkout@v4
@@ -21,7 +21,7 @@ jobs:
 
   dev-deploy:
     runs-on: ubuntu-latest
-    name: Deploy
+    name: Deploy to Development
     if: github.ref == 'refs/heads/dev'
     steps:
       - uses: actions/checkout@v4
