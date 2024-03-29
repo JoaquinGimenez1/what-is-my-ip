@@ -55,7 +55,7 @@ export default {
 
 export class RateLimiter implements DurableObject {
   static readonly milliseconds_per_request = 1;
-  static readonly milliseconds_for_grace_period = 1000;
+  static readonly milliseconds_for_grace_period = 5;
 
   nextAllowedTime: number;
 
