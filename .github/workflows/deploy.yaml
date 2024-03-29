@@ -4,25 +4,14 @@ on:
   push:
     branches:
       - main
-      - staging
 
 jobs:
   deploy:
-    name: Deploy
     runs-on: ubuntu-latest
+    name: Deploy
     steps:
-      - name: Checkout latest version
-        uses: actions/checkout@v3
-
-      - name: Deploy to staging
-        if: github.ref_name == 'staging'
+      - uses: actions/checkout@v4
+      - name: Deploy
         uses: cloudflare/wrangler-action@v3
         with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
-          command: deploy --env ${{ github.ref_name }}
-
-      - name: Deploy to prod
-        if: github.ref_name == 'main'
-        uses: cloudflare/wrangler-action@v3
-        with:
-          apiToken: ${{ secrets.CF_API_TOKEN }}
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
