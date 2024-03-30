@@ -59,31 +59,22 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  // Rate limit to 1 request per IP every 3 seconds
-  static readonly milliseconds_per_request = 3000;
-  static readonly milliseconds_for_grace_period = 1000;
+  static readonly milliseconds_per_request = 1000;
+  static readonly milliseconds_for_grace_period = 10;
 
   nextAllowedTime: number;
 
-  constructor(state: DurableObjectState, _env: Env) {
+  constructor(_state: DurableObjectState, _env: Env) {
     this.nextAllowedTime = 0;
   }
 
-  async fetch(_request: Request): Promise<Response> {
+  async fetch(request: Request): Promise<Response> {
     const now = Date.now();
 
     this.nextAllowedTime = Math.max(now, this.nextAllowedTime);
-    /**
-     * Each request will add `milliseconds_per_request` to `nextAllowedTime` meaning
-     * that the next allowed time will be delayed by `milliseconds_per_request` for each request
-     * wether the request was accepted or not.
-     */
     this.nextAllowedTime += RateLimiter.milliseconds_per_request;
-    /**
-     * If the next allowed time is in the future,
-     * we return the time left until the next request is allowed
-     */
+
     const value = Math.max(0, this.nextAllowedTime - now - RateLimiter.milliseconds_for_grace_period);
-    return new Response(JSON.stringify({ milliseconds_to_next_request: value, nextAllowedTime: this.nextAllowedTime, now }));
+    return new Response(JSON.stringify({ milliseconds_to_next_request: value }));
   }
 }
