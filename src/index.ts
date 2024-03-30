@@ -1,22 +1,9 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
-
 export interface Env {
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
   RATE_LIMITER: DurableObjectNamespace;
 }
 
 interface RateLimiterResponse {
   milliseconds_to_next_request: number;
-  nextAllowedTime: number;
-  now: number;
 }
 
 export default {
@@ -33,10 +20,9 @@ export default {
     try {
       const stub = env.RATE_LIMITER.get(id);
       const response = await stub.fetch(request);
-      const { milliseconds_to_next_request, nextAllowedTime, now } = (await response.json()) as RateLimiterResponse;
+      const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
-        // Alternatively one could sleep for the necessary length of time
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request, nextAllowedTime, now }, null, 2), {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request }, null, 2), {
           status: 429,
         });
       }
@@ -44,9 +30,9 @@ export default {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
     }
 
-    // Extract useful information
+    // Extract useful information from headers
     const country = request.headers.get('cf-ipcountry');
-    // Get Cloudflare object
+    // Extract useful information from Cloudflare object
     const { city, region, asn, asOrganization, timezone } = request.cf || {};
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;
@@ -59,8 +45,8 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  static readonly milliseconds_per_request = 1000;
-  static readonly milliseconds_for_grace_period = 10;
+  static readonly milliseconds_per_request = 3000;
+  static readonly milliseconds_for_grace_period = 5000;
 
   nextAllowedTime: number;
 
@@ -68,7 +54,7 @@ export class RateLimiter implements DurableObject {
     this.nextAllowedTime = 0;
   }
 
-  async fetch(request: Request): Promise<Response> {
+  async fetch(_request: Request): Promise<Response> {
     const now = Date.now();
 
     this.nextAllowedTime = Math.max(now, this.nextAllowedTime);
