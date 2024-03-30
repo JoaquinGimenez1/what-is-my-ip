@@ -55,8 +55,9 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  static readonly milliseconds_per_request = 1;
-  static readonly milliseconds_for_grace_period = 5000;
+  // Rate limit to 1 request per second
+  static readonly milliseconds_per_request = 1000;
+  static readonly milliseconds_for_grace_period = 1;
 
   nextAllowedTime: number;
 
