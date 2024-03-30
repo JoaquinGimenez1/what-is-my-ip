@@ -22,7 +22,7 @@ export default {
       const response = await stub.fetch(request);
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request }, null, 2), {
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), {
           status: 429,
         });
       }
