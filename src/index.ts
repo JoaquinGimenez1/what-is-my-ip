@@ -55,41 +55,31 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  static readonly milliseconds_per_request = 1;
-  static readonly milliseconds_for_updates = 30000;
-  static readonly capacity = 5;
+  // Rate limit to 1 request per IP every 5 seconds
+  static readonly milliseconds_per_request = 5000;
+  static readonly milliseconds_for_grace_period = 10;
 
-  state: DurableObjectState;
-  tokens: number;
+  nextAllowedTime: number;
 
-  constructor(state: DurableObjectState, _env: Env) {
-    this.state = state;
-    this.tokens = RateLimiter.capacity;
+  constructor(_state: DurableObjectState, _env: Env) {
+    this.nextAllowedTime = 0;
   }
 
   async fetch(_request: Request): Promise<Response> {
-    this.checkAndSetAlarm();
+    const now = Date.now();
 
-    let response = { milliseconds_to_next_request: RateLimiter.milliseconds_per_request };
-    if (this.tokens > 0) {
-      this.tokens -= 1;
-      response.milliseconds_to_next_request = 0;
-    }
-
-    return new Response(JSON.stringify(response));
-  }
-
-  async checkAndSetAlarm() {
-    let currentAlarm = await this.state.storage.getAlarm();
-    if (currentAlarm == null) {
-      this.state.storage.setAlarm(Date.now() + RateLimiter.milliseconds_for_updates * RateLimiter.milliseconds_per_request);
-    }
-  }
-
-  async alarm() {
-    if (this.tokens < RateLimiter.capacity) {
-      this.tokens = Math.min(RateLimiter.capacity, this.tokens + RateLimiter.milliseconds_for_updates);
-      this.checkAndSetAlarm();
-    }
+    this.nextAllowedTime = Math.max(now, this.nextAllowedTime);
+    /**
+     * Each request will add `milliseconds_per_request` to `nextAllowedTime` meaning
+     * that the next allowed time will be delayed by `milliseconds_per_request` for each request
+     * wether the request was accepted or not.
+     */
+    this.nextAllowedTime += RateLimiter.milliseconds_per_request;
+    /**
+     * If the next allowed time is in the future,
+     * we return the time left until the next request is allowed
+     */
+    const value = Math.max(0, this.nextAllowedTime - now - RateLimiter.milliseconds_for_grace_period);
+    return new Response(JSON.stringify({ milliseconds_to_next_request: value }));
   }
 }
