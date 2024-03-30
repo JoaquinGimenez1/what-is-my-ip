@@ -1,15 +1,4 @@
-/**
- * Welcome to Cloudflare Workers! This is your first worker.
- *
- * - Run `npm run dev` in your terminal to start a development server
- * - Open a browser tab at http://localhost:8787/ to see your worker in action
- * - Run `npm run deploy` to publish your worker
- *
- * Learn more at https://developers.cloudflare.com/workers/
- */
-
 export interface Env {
-  // Example binding to Durable Object. Learn more at https://developers.cloudflare.com/workers/runtime-apis/durable-objects/
   RATE_LIMITER: DurableObjectNamespace;
 }
 
@@ -33,16 +22,17 @@ export default {
       const response = await stub.fetch(request);
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
-        // Alternatively one could sleep for the necessary length of time
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), { status: 429 });
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request }, null, 2), {
+          status: 429,
+        });
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
     }
 
-    // Extract useful information
+    // Extract useful information from headers
     const country = request.headers.get('cf-ipcountry');
-    // Get Cloudflare object
+    // Extract useful information from Cloudflare object
     const { city, region, asn, asOrganization, timezone } = request.cf || {};
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;
@@ -55,9 +45,9 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  // Rate limit to 1 request per IP every 5 seconds
-  static readonly milliseconds_per_request = 5000;
-  static readonly milliseconds_for_grace_period = 10;
+  // Rate limit to 1 request per IP every 3 seconds
+  static readonly milliseconds_per_request = 3000;
+  static readonly milliseconds_for_grace_period = 5000;
 
   nextAllowedTime: number;
 
