@@ -34,10 +34,7 @@ export default {
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
         // Alternatively one could sleep for the necessary length of time
-        return new Response(
-          JSON.stringify({ error: 'Rate limit exceeded', next_allowed_request_at: milliseconds_to_next_request }, null, 2),
-          { status: 429 }
-        );
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), { status: 429 });
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
@@ -58,8 +55,8 @@ export default {
 
 // Durable Object
 export class RateLimiter implements DurableObject {
-  // Rate limit to 1 request per second
-  static readonly milliseconds_per_request = 1000;
+  // Rate limit to 1 request per IP every 5 seconds
+  static readonly milliseconds_per_request = 5000;
   static readonly milliseconds_for_grace_period = 10;
 
   nextAllowedTime: number;
