@@ -34,7 +34,7 @@ export default {
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
         // Alternatively one could sleep for the necessary length of time
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), { status: 429 });
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request }, null, 2), { status: 429 });
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
