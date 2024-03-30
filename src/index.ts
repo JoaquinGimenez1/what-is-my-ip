@@ -34,7 +34,10 @@ export default {
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
         // Alternatively one could sleep for the necessary length of time
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), { status: 429 });
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded', next_allowed_request_at: milliseconds_to_next_request }, null, 2),
+          { status: 429 }
+        );
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
@@ -65,12 +68,20 @@ export class RateLimiter implements DurableObject {
     this.nextAllowedTime = 0;
   }
 
-  async fetch(request: Request): Promise<Response> {
+  async fetch(_request: Request): Promise<Response> {
     const now = Date.now();
 
     this.nextAllowedTime = Math.max(now, this.nextAllowedTime);
+    /**
+     * Each request will add `milliseconds_per_request` to `nextAllowedTime` meaning
+     * that the next allowed time will be delayed by `milliseconds_per_request` for each request
+     * wether the request was accepted or not.
+     */
     this.nextAllowedTime += RateLimiter.milliseconds_per_request;
-
+    /**
+     * If the next allowed time is in the future,
+     * we return the time left until the next request is allowed
+     */
     const value = Math.max(0, this.nextAllowedTime - now - RateLimiter.milliseconds_for_grace_period);
     return new Response(JSON.stringify({ milliseconds_to_next_request: value }));
   }
