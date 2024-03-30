@@ -65,7 +65,7 @@ export class RateLimiter implements DurableObject {
 
   nextAllowedTime: number;
 
-  constructor(_state: DurableObjectState, _env: Env) {
+  constructor(state: DurableObjectState, _env: Env) {
     this.nextAllowedTime = 0;
   }
 
