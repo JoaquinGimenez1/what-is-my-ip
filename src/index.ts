@@ -15,6 +15,8 @@ export interface Env {
 
 interface RateLimiterResponse {
   milliseconds_to_next_request: number;
+  nextAllowedTime: number;
+  now: number;
 }
 
 export default {
@@ -31,10 +33,12 @@ export default {
     try {
       const stub = env.RATE_LIMITER.get(id);
       const response = await stub.fetch(request);
-      const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
+      const { milliseconds_to_next_request, nextAllowedTime, now } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
         // Alternatively one could sleep for the necessary length of time
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request }, null, 2), { status: 429 });
+        return new Response(JSON.stringify({ error: 'Rate limit exceeded', milliseconds_to_next_request, nextAllowedTime, now }, null, 2), {
+          status: 429,
+        });
       }
     } catch (error) {
       return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
@@ -80,6 +84,6 @@ export class RateLimiter implements DurableObject {
      * we return the time left until the next request is allowed
      */
     const value = Math.max(0, this.nextAllowedTime - now - RateLimiter.milliseconds_for_grace_period);
-    return new Response(JSON.stringify({ milliseconds_to_next_request: value }));
+    return new Response(JSON.stringify({ milliseconds_to_next_request: value, nextAllowedTime: this.nextAllowedTime, now }));
   }
 }
