@@ -11,7 +11,7 @@ export default {
     // Determine the IP address of the client
     const ip = request.headers.get('CF-Connecting-IP');
     if (ip === null) {
-      return new Response(JSON.stringify({ error: 'Could not determine client IP' }, null, 2), { status: 400 });
+      return new Response(JSON.stringify({ error: { message: 'Could not determine client IP', code: 400 } }, null, 2), { status: 400 });
     }
 
     // Obtain an identifier for a Durable Object based on the client's IP address
@@ -22,12 +22,12 @@ export default {
       const response = await stub.fetch(request);
       const { milliseconds_to_next_request } = (await response.json()) as RateLimiterResponse;
       if (milliseconds_to_next_request > 0) {
-        return new Response(JSON.stringify({ error: 'Rate limit exceeded' }, null, 2), {
+        return new Response(JSON.stringify({ error: { message: 'Rate limit exceeded', code: 429 } }, null, 2), {
           status: 429,
         });
       }
     } catch (error) {
-      return new Response(JSON.stringify({ error: 'Could not connect to rate limiter' }), { status: 502 });
+      return new Response(JSON.stringify({ error: { message: 'Could not connect to rate limiter', code: 502 } }), { status: 502 });
     }
 
     // Extract useful information from headers
