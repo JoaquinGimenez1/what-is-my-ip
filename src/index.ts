@@ -1,5 +1,8 @@
+import { Toucan } from 'toucan-js';
+
 export interface Env {
   RATE_LIMITER: DurableObjectNamespace;
+  SENTRY_DSN: string;
 }
 
 interface RateLimiterResponse {
@@ -9,6 +12,13 @@ interface RateLimiterResponse {
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
     // Determine the IP address of the client
+
+    const sentry = new Toucan({
+      dsn: env.SENTRY_DSN,
+      context: ctx,
+      request,
+    });
+
     const ip = request.headers.get('CF-Connecting-IP');
     if (ip === null) {
       return new Response(JSON.stringify({ error: { message: 'Could not determine client IP', code: 400 } }, null, 2), { status: 400 });
