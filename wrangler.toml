@@ -1,14 +1,16 @@
-# Default env would be `dev`
 name = "what-is-my-ip-dev"
 main = "src/index.ts"
-compatibility_date = "2024-03-29"
+compatibility_date = "2024-07-06"
+workers_dev = false
 routes = [
     { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
 ]
 
-[[durable_objects.bindings]]
+[[unsafe.bindings]]
 name = "RATE_LIMITER"
-class_name = "RateLimiter"
+type = "ratelimit"
+namespace_id = "1001"
+simple = { limit = 10, period = 60 }
 
 [env.production]
 name = "what-is-my-ip"
@@ -16,22 +18,8 @@ routes = [
     { pattern = "ip.joaquingimenez.com", custom_domain = true }
 ]
 
-[[env.production.durable_objects.bindings]]
+[[env.production.unsafe.bindings]]
 name = "RATE_LIMITER"
-class_name = "RateLimiter"
-
-[[migrations]]
-tag = "v1"
-new_classes = ["RateLimiter"]
-
-# Variable bindings. These are arbitrary, plaintext strings (similar to environment variables)
-# Note: Use secrets to store sensitive data.
-# Docs: https://developers.cloudflare.com/workers/platform/environment-variables
-# [vars]
-# MY_VARIABLE = "production_value"
-
-# Bind an R2 Bucket. Use R2 to store arbitrarily large blobs of data, such as files.
-# Docs: https://developers.cloudflare.com/r2/api/workers/workers-api-usage/
-# [[r2_buckets]]
-# binding = "MY_BUCKET"
-# bucket_name = "my-bucket"
+type = "ratelimit"
+namespace_id = "1002"
+simple = { limit = 10, period = 60 }
