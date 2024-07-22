@@ -14,6 +14,12 @@ export default {
       });
     }
 
+    // Workers Analytics Engine
+    // env.VISITS.writeDataPoint({
+    //   indexes: [ip],
+    //   blobs: [success, env.ENVIRONMENT],
+    // });
+
     // Extract useful information from headers
     const country = request.headers.get('cf-ipcountry');
     // Extract useful information from Cloudflare object
@@ -22,6 +28,7 @@ export default {
     const org = `AS${asn} ${asOrganization}`;
     // Build payload
     const payload = { ip, city, region, country, org, timezone };
+    await env.LOGS.put(`visit/${region}/${new Date().toISOString()}`, JSON.stringify(payload));
     // Return payload as JSON
     return new Response(JSON.stringify(payload, null, 2));
   },
