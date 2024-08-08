@@ -5,7 +5,9 @@ workers_dev = false
 routes = [
     { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
 ]
-analytics_engine_datasets = [{ binding = "VISITS", dataset = "visits_dev" }]
+analytics_engine_datasets = [
+    { binding = "VISITS", dataset = "visits_dev" }
+]
 
 kv_namespaces = [
     { binding = "LOGS", id = "be5e4ab1fd8f40c2bba9d6e4260a1b01" }
@@ -25,8 +27,9 @@ name = "what-is-my-ip"
 routes = [
     { pattern = "ip.joaquingimenez.com", custom_domain = true }
 ]
-analytics_engine_datasets = [{ binding = "VISITS", dataset = "visits_prod" }]
-
+analytics_engine_datasets = [
+    { binding = "VISITS", dataset = "visits_prod" }
+]
 
 [env.production.vars]
 ENVIRONMENT = "production"
