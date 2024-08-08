@@ -5,6 +5,12 @@ workers_dev = false
 routes = [
     { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
 ]
+analytics_engine_datasets = [
+    { binding = "VISITS", dataset = "visits_dev" }
+]
+
+[vars]
+ENVIRONMENT = "development"
 
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
@@ -17,6 +23,12 @@ name = "what-is-my-ip"
 routes = [
     { pattern = "ip.joaquingimenez.com", custom_domain = true }
 ]
+analytics_engine_datasets = [
+    { binding = "VISITS", dataset = "visits_prod" }
+]
+
+[env.production.vars]
+ENVIRONMENT = "production"
 
 [[env.production.unsafe.bindings]]
 name = "RATE_LIMITER"
