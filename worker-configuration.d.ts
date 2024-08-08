@@ -2,7 +2,6 @@
 // by running `wrangler types`
 
 interface Env {
-  LOGS: KVNamespace;
   ENVIRONMENT: string;
   VISITS: AnalyticsEngineDataset;
   RATE_LIMITER: any;
