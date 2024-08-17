@@ -3,7 +3,8 @@ main = "src/index.ts"
 compatibility_date = "2024-07-06"
 workers_dev = false
 routes = [
-    { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
+    { pattern = "ip-dev.joaquingimenez.com", custom_domain = true },
+    { pattern = "ip-dev.jg1.co", custom_domain = true }
 ]
 analytics_engine_datasets = [
     { binding = "VISITS", dataset = "visits_dev" }
@@ -21,7 +22,8 @@ simple = { limit = 10, period = 60 }
 [env.production]
 name = "what-is-my-ip"
 routes = [
-    { pattern = "ip.joaquingimenez.com", custom_domain = true }
+    { pattern = "ip.joaquingimenez.com", custom_domain = true },
+    { pattern = "ip.jg1.co", custom_domain = true }
 ]
 analytics_engine_datasets = [
     { binding = "VISITS", dataset = "visits_prod" }
