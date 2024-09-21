@@ -6,7 +6,7 @@ routes = [
     { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }
 ]
 analytics_engine_datasets = [
-    { binding = "VISITS", dataset = "visits_dev" }
+    { binding = "VISITS", dataset = "what_is_my_ip_dev" }
 ]
 
 [vars]
@@ -25,7 +25,7 @@ routes = [
     { pattern = "ip.jg1.co", custom_domain = true }
 ]
 analytics_engine_datasets = [
-    { binding = "VISITS", dataset = "visits_prod" }
+    { binding = "VISITS", dataset = "what_is_my_ip_prod" }
 ]
 
 [env.production.vars]
