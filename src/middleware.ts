@@ -1,7 +1,6 @@
 import { createMiddleware } from 'hono/factory';
 import { HonoContext } from './context';
 
-// Currently not in use
 export const rateLimitter = createMiddleware<HonoContext>(async (c, next) => {
   const key = c.req.header('cf-connecting-ip') ?? 'no-ip';
   const { success } = await c.env.RATE_LIMITER.limit({ key });
@@ -15,6 +14,8 @@ export const rateLimitter = createMiddleware<HonoContext>(async (c, next) => {
 
 export const analyticsEngine = createMiddleware<HonoContext>(async (c, next) => {
   await next();
-  // Check `c.res` and store relevant information
-  c.env.VISITS.writeDataPoint({ doubles: [], blobs: [] });
+  // We have `c.res` available here, store what we need
+  const { status } = c.res;
+
+  c.env.VISITS.writeDataPoint({ doubles: [status] });
 });
