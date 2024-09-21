@@ -1,19 +1,15 @@
-import { cloudflareRateLimiter } from '@hono-rate-limiter/cloudflare';
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import { HonoContext } from './context';
 import { prettifyJson } from './lib';
+import { analyticsEngine, rateLimitter } from './middleware';
 
 const app = new Hono<HonoContext>();
 
 // Middlewares
 app.use(secureHeaders());
-app.use(
-  cloudflareRateLimiter<HonoContext>({
-    rateLimitBinding: (c) => c.env.RATE_LIMITER,
-    keyGenerator: (c) => c.req.header('cf-connecting-ip') ?? 'no-ip',
-  })
-);
+app.use(analyticsEngine);
+app.use(rateLimitter);
 
 // Routes
 app.get('/', async (c) => {
@@ -27,7 +23,7 @@ app.get('/', async (c) => {
     const { city, region, asn, asOrganization, timezone } = cf;
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;
-    // Build payload
+    // Build pretty payload
     payload = prettifyJson({ ip, city, region, country, org, timezone });
   }
 

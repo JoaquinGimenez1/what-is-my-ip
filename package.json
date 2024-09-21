@@ -2,10 +2,10 @@
   "name": "what-is-my-ip",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
-    "deploy": "wrangler deploy --minify src/index.ts"
+    "deploy": "wrangler deploy --minify src/index.ts",
+    "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "@hono-rate-limiter/cloudflare": "^0.2.1",
     "hono": "^4.6.2"
   },
   "devDependencies": {
