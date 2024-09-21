@@ -1,50 +1,40 @@
+import { cloudflareRateLimiter } from '@hono-rate-limiter/cloudflare';
+import { Hono } from 'hono';
+import { secureHeaders } from 'hono/secure-headers';
+import { HonoContext } from './context';
+import { prettifyJson } from './lib';
+
+const app = new Hono<HonoContext>();
+
+// Middlewares
+app.use(secureHeaders());
+app.use(
+  cloudflareRateLimiter<HonoContext>({
+    rateLimitBinding: (c) => c.env.RATE_LIMITER,
+    keyGenerator: (c) => c.req.header('cf-connecting-ip') ?? 'no-ip',
+  })
+);
+
+// Routes
+app.get('/', async (c) => {
+  // Extract useful information from headers
+  const ip = c.req.header('cf-connecting-ip');
+  const country = c.req.header('cf-ipcountry');
+  // Extract useful information from Cloudflare object
+  const cf = c.req.raw.cf;
+  let payload: string = '';
+  if (cf) {
+    const { city, region, asn, asOrganization, timezone } = cf;
+    // Build useful AS information
+    const org = `AS${asn} ${asOrganization}`;
+    // Build payload
+    payload = prettifyJson({ ip, city, region, country, org, timezone });
+  }
+
+  return c.text(payload);
+});
+
+// Export the app
 export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    try {
-      // Determine the IP address of the client
-      const ip = request.headers.get('CF-Connecting-IP');
-      if (ip === null) {
-        env.VISITS.writeDataPoint({
-          blobs: ['error'], // Status
-          doubles: [400], // HTTP status code
-        });
-        return new Response(JSON.stringify({ error: { message: 'Could not determine client IP', code: 400 } }, null, 2), { status: 400 });
-      }
-
-      const { success } = await env.RATE_LIMITER.limit({ key: ip });
-
-      if (!success) {
-        env.VISITS.writeDataPoint({
-          blobs: ['error'], // Status
-          doubles: [429], // HTTP status code
-        });
-        return new Response(JSON.stringify({ error: { message: 'Rate limit exceeded', code: 429 } }, null, 2), {
-          status: 429,
-        });
-      }
-
-      // Extract useful information from headers
-      const country = request.headers.get('cf-ipcountry');
-      // Extract useful information from Cloudflare object
-      const { city, region, asn, asOrganization, timezone, colo } = request.cf || {};
-      // Build useful AS information
-      const org = `AS${asn} ${asOrganization}`;
-      // Build payload
-      const payload = { ip, city, region, country, org, timezone };
-
-      env.VISITS.writeDataPoint({
-        blobs: ['success', country as string, city as string, region as string, org as string, colo as string], // Status,
-        doubles: [200], // HTTP status code
-      });
-
-      // Return payload as JSON
-      return new Response(JSON.stringify(payload, null, 2));
-    } catch (error) {
-      env.VISITS.writeDataPoint({
-        blobs: ['error'], // Status
-        doubles: [500], // HTTP status code
-      });
-      return new Response(JSON.stringify({ error: { message: (error as Error).message, code: 500 } }, null, 2), { status: 500 });
-    }
-  },
+  fetch: app.fetch,
 };
