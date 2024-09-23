@@ -6,6 +6,9 @@ on:
       - main
       - dev
 
+env:
+  CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+
 jobs:
   production-deploy:
     runs-on: ubuntu-latest
@@ -19,7 +22,7 @@ jobs:
         with:
           run_install: true
       - name: Deploy
-        run: CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} pnpm run deploy --env production
+        run: pnpm run deploy --env production
 
   dev-deploy:
     runs-on: ubuntu-latest
@@ -33,4 +36,4 @@ jobs:
         with:
           run_install: true
       - name: Deploy
-        run: CLOUDFLARE_API_TOKEN=${{ secrets.CLOUDFLARE_API_TOKEN }} pnpm run deploy
+        run: pnpm run deploy
