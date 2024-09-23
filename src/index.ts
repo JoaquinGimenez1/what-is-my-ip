@@ -1,8 +1,8 @@
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import { HonoContext } from './context';
-import { prettifyJson } from './lib';
 import { analyticsEngine, rateLimitter } from './middleware';
+import { Payload } from './types';
 
 const app = new Hono<HonoContext>();
 
@@ -18,19 +18,16 @@ app.get('/', async (c) => {
   const country = c.req.header('cf-ipcountry');
   // Extract useful information from Cloudflare object
   const cf = c.req.raw.cf;
-  let payload: string = '';
+  let payload: Payload = { ip, country };
   if (cf) {
     const { city, region, asn, asOrganization, timezone } = cf;
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;
-    // Build pretty payload
-    payload = prettifyJson({ ip, city, region, country, org, timezone });
+    payload = { ...payload, city, region, org, timezone };
   }
 
-  return c.text(payload);
+  const prettyPayload = JSON.stringify(payload, null, 2);
+  return c.text(prettyPayload, 200, { 'Content-Type': 'application/json; charset=UTF-8' });
 });
 
-// Export the app
-export default {
-  fetch: app.fetch,
-};
+export default app;
