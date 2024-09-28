@@ -1,5 +1,8 @@
+import { createRemoteJWKSet, jwtVerify, JWKSCacheInput } from 'jose';
+import { getCookie } from 'hono/cookie';
 import { createMiddleware } from 'hono/factory';
 import { HonoContext } from './context';
+import { User } from './types';
 
 /**
  * Middleware to enforce rate limiting based on the client's IP address.
@@ -56,4 +59,65 @@ export const analyticsEngine = createMiddleware<HonoContext>(async (c, next) => 
 
   // Non-blocking write to the Workers Analytics Engine
   c.env?.VISITS?.writeDataPoint(entry);
+});
+
+/**
+ * Middleware to validate the access token in the request.
+ *
+ * This middleware checks the environment and, if not in production, verifies the JWT token
+ * provided in the request headers or cookies. It uses the JWKS (JSON Web Key Set) for token
+ * verification and updates the cache if necessary.
+ *
+ * Official documenation to validate JWT:
+ * https://developers.cloudflare.com/cloudflare-one/identity/authorization-cookie/validating-json/
+ *
+ * @param c - The context object containing the request and environment information.
+ * @param next - The next middleware function to call if the token is valid.
+ *
+ * @returns A JSON response with an error message and status code if the token is invalid or missing.
+ *
+ * @throws Will return a 500 status code if JWKS configuration is missing.
+ * @throws Will return a 401 status code if the JWT token is missing.
+ * @throws Will return a 403 status code if the JWT token verification fails.
+ */
+export const validateAccessToken = createMiddleware<HonoContext>(async (c, next) => {
+  // Production environment is public
+  if (c.env.ENVIRONMENT === 'production') {
+    return await next();
+  }
+
+  if (!c.env.JWT_ISSUER || !c.env.JWT_AUDIENCE || !c.env.JWKS) {
+    return c.json({ error: 'Missing JWKS configuration' }, 500);
+  }
+
+  const jwt = c.req.header('cf-access-jwt-assertion') ?? getCookie(c, 'CF_Authorization');
+
+  if (!jwt) {
+    return c.json({ error: 'Unauthorized' }, 401);
+  }
+
+  try {
+    const certsUrl = new URL(`${c.env.JWT_ISSUER}/cdn-cgi/access/certs`);
+    // https://github.com/panva/jose/blob/main/docs/variables/jwks_remote.jwksCache.md#variable-jwkscache
+    let jwksCache: JWKSCacheInput = (await c.env.JWKS.get('certs', { type: 'json' })) ?? {};
+    const { uat } = jwksCache;
+    // TODO: Cache not working
+    const jkws = createRemoteJWKSet(certsUrl, { [jwksCache]: jwksCache });
+
+    await jwtVerify(jwt, jkws, { audience: c.env.JWT_AUDIENCE, issuer: c.env.JWT_ISSUER });
+
+    if (uat !== jwksCache.uat) {
+      // Non-blocking cache update
+      c.executionCtx.waitUntil(c.env.JWKS.put('certs', JSON.stringify(jwksCache)));
+    }
+
+    const res = await fetch(`${c.env.JWT_ISSUER}/cdn-cgi/access/get-identity`, { headers: { Cookie: `CF_Authorization=${jwt}` } });
+    const user = (await res.json()) as User;
+    c.set('user', user);
+  } catch (error) {
+    console.error((error as Error).message);
+    return c.json({ error: 'Forbidden' }, 403);
+  }
+
+  await next();
 });

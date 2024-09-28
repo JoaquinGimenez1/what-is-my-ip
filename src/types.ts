@@ -6,3 +6,16 @@ export type Payload = {
   org?: string | unknown;
   timezone?: string | unknown;
 };
+
+type Group = {
+  id: string;
+  name: string;
+  email: string;
+};
+
+export type User = {
+  id?: string;
+  name?: string;
+  email?: string;
+  groups?: Group[];
+};
