@@ -20,6 +20,14 @@ app.get('/', async (c) => {
   const cf = c.req.raw.cf;
   let payload: Payload = { ip, country };
   if (cf) {
+    /**
+     * Destructures the `cf` object to extract the following properties:
+     * - `city`: The city associated with the IP address.
+     * - `region`: The region or state associated with the IP address.
+     * - `asn`: The Autonomous System Number associated with the IP address.
+     * - `asOrganization`: The organization associated with the ASN.
+     * - `timezone`: The timezone associated with the IP address.
+     */
     const { city, region, asn, asOrganization, timezone } = cf;
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;

@@ -1,6 +1,6 @@
 name = "what-is-my-ip-dev"
 main = "src/index.ts"
-compatibility_date = "2024-07-06"
+compatibility_date = "2024-09-28"
 compatibility_flags = [ "nodejs_compat" ]
 workers_dev = false
 routes = [
@@ -12,6 +12,13 @@ analytics_engine_datasets = [
 
 [vars]
 ENVIRONMENT = "development"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
+
+[version_metadata]
+binding = "CF_VERSION_METADATA"
 
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
@@ -31,6 +38,13 @@ analytics_engine_datasets = [
 
 [env.production.vars]
 ENVIRONMENT = "production"
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 1
+
+[env.production.version_metadata]
+binding = "CF_VERSION_METADATA"
 
 [[env.production.unsafe.bindings]]
 name = "RATE_LIMITER"
