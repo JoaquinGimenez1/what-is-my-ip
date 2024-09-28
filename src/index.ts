@@ -1,7 +1,7 @@
 import { Hono } from 'hono';
 import { secureHeaders } from 'hono/secure-headers';
 import { HonoContext } from './context';
-import { analyticsEngine, rateLimitter } from './middleware';
+import { analyticsEngine, rateLimitter, validateAccessToken } from './middleware';
 import { Payload } from './types';
 
 const app = new Hono<HonoContext>();
@@ -10,6 +10,7 @@ const app = new Hono<HonoContext>();
 app.use(secureHeaders());
 app.use(analyticsEngine);
 app.use(rateLimitter);
+app.use(validateAccessToken);
 
 // Routes
 app.get('/', async (c) => {

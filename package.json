@@ -9,7 +9,8 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "hono": "^4.6.3"
+    "hono": "^4.6.3",
+    "jose": "^5.9.3"
   },
   "devDependencies": {
     "@cloudflare/vitest-pool-workers": "^0.5.12",
