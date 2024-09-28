@@ -9,12 +9,13 @@ routes = [
 analytics_engine_datasets = [
     { binding = "VISITS", dataset = "what_is_my_ip_dev" }
 ]
-observability = [
-    { enabled = true, head_sampling_rate = 1 }
-]
 
 [vars]
 ENVIRONMENT = "development"
+
+[observability]
+enabled = true
+head_sampling_rate = 1
 
 [[unsafe.bindings]]
 name = "RATE_LIMITER"
@@ -31,12 +32,13 @@ routes = [
 analytics_engine_datasets = [
     { binding = "VISITS", dataset = "what_is_my_ip_prod" }
 ]
-observability = [
-    { enabled = true, head_sampling_rate = 1 }
-]
 
 [env.production.vars]
 ENVIRONMENT = "production"
+
+[env.production.observability]
+enabled = true
+head_sampling_rate = 1
 
 [[env.production.unsafe.bindings]]
 name = "RATE_LIMITER"
