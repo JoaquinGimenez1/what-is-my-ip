@@ -7,6 +7,7 @@ export const rateLimitter = createMiddleware<HonoContext>(async (c, next) => {
     const { success } = await c.env.RATE_LIMITER.limit({ key });
     c.set('ip', key);
     if (!success) {
+      console.log(`IP ${key} exceeded rate limit`);
       return c.json({ error: 'Rate limit exceeded' }, 429);
     }
   } catch (error) {
@@ -22,5 +23,8 @@ export const analyticsEngine = createMiddleware<HonoContext>(async (c, next) => 
   const { status } = c.res;
   const ip = c.get('ip');
 
-  c.env?.VISITS?.writeDataPoint({ doubles: [status], blobs: [ip] });
+  const entry = { doubles: [status], blobs: [ip] };
+  console.log('Writing data point:', entry);
+
+  c.env?.VISITS?.writeDataPoint(entry);
 });

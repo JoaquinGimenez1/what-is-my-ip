@@ -1,5 +1,7 @@
 {
   "name": "what-is-my-ip",
+  "version": "1.0.0",
+  "description": "API to get information about current IP address",
   "scripts": {
     "dev": "wrangler dev src/index.ts",
     "deploy": "wrangler deploy --minify src/index.ts",
@@ -7,13 +9,13 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "hono": "^4.6.2"
+    "hono": "^4.6.3"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.5.7",
-    "@cloudflare/workers-types": "^4.20240919.0",
+    "@cloudflare/vitest-pool-workers": "^0.5.12",
+    "@cloudflare/workers-types": "^4.20240925.0",
     "vitest": "^2.1.1",
-    "wrangler": "^3.78.7"
+    "wrangler": "^3.78.12"
   },
   "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }
