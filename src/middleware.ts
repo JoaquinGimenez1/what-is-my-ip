@@ -22,7 +22,7 @@ export const rateLimitter = createMiddleware<HonoContext>(async (c, next) => {
   try {
     const key = c.req.header('cf-connecting-ip') ?? 'no-ip';
     const { success } = await c.env.RATE_LIMITER.limit({ key });
-    c.set('ip', key);
+
     if (!success) {
       console.log(`IP ${key} exceeded rate limit`);
       return c.json({ error: 'Rate limit exceeded' }, 429);
@@ -48,14 +48,13 @@ export const rateLimitter = createMiddleware<HonoContext>(async (c, next) => {
 export const analyticsEngine = createMiddleware<HonoContext>(async (c, next) => {
   await next();
 
+  const versionId = c.env.CF_VERSION_METADATA?.id ?? 'unknown';
+  const { path } = c.req;
   // We have `c.res` available here, store what we need
   const { status } = c.res;
-  const ip = c.get('ip');
 
-  const versionId = c.env.CF_VERSION_METADATA?.id;
-  const { path } = c.req;
-
-  const entry = { doubles: [status], blobs: [ip, versionId, path] };
+  const { ip = null, country = null, city = null, region = null, org = null } = c.get('payload');
+  const entry = { doubles: [status], blobs: [ip, versionId, path, country, city, region, org] };
 
   // Non-blocking write to the Workers Analytics Engine
   c.env?.VISITS?.writeDataPoint(entry);
