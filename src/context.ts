@@ -1,4 +1,4 @@
-import { User } from './types';
+import { Payload, User } from './types';
 
 export type Bindings = {
   ENVIRONMENT: 'production' | 'development';
@@ -11,7 +11,7 @@ export type Bindings = {
 };
 
 export type Variables = {
-  ip: string;
+  payload: Payload;
   user: User | undefined;
 };
 

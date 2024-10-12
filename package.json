@@ -9,14 +9,14 @@
     "preinstall": "npx only-allow pnpm"
   },
   "dependencies": {
-    "hono": "^4.6.3",
-    "jose": "^5.9.3"
+    "hono": "^4.6.4",
+    "jose": "^5.9.4"
   },
   "devDependencies": {
-    "@cloudflare/vitest-pool-workers": "^0.5.14",
-    "@cloudflare/workers-types": "^4.20241004.0",
+    "@cloudflare/vitest-pool-workers": "^0.5.18",
+    "@cloudflare/workers-types": "^4.20241011.0",
     "vitest": "^2.1.2",
-    "wrangler": "^3.80.0"
+    "wrangler": "^3.80.4"
   },
   "packageManager": "pnpm@9.4.0+sha512.f549b8a52c9d2b8536762f99c0722205efc5af913e77835dbccc3b0b0b2ca9e7dc8022b78062c17291c48e88749c70ce88eb5a74f1fa8c4bf5e18bb46c8bd83a"
 }

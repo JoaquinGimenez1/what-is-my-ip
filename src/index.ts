@@ -32,7 +32,9 @@ app.get('/', async (c) => {
     const { city, region, asn, asOrganization, timezone } = cf;
     // Build useful AS information
     const org = `AS${asn} ${asOrganization}`;
+    // @ts-ignore
     payload = { ...payload, city, region, org, timezone };
+    c.set('payload', payload);
   }
 
   const prettyPayload = JSON.stringify(payload, null, 2);
