@@ -2,6 +2,7 @@ name = "what-is-my-ip-dev"
 main = "src/index.ts"
 compatibility_date = "2024-11-27"
 compatibility_flags = ["nodejs_compat"]
+account_id: "91351aa95941d81305a888c10f2e26c7"
 workers_dev = false
 routes = [
   { pattern = "ip-dev.joaquingimenez.com", custom_domain = true }

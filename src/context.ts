@@ -1,3 +1,6 @@
+import type { RequestIdVariables } from 'hono/request-id';
+import type { SecureHeadersVariables } from 'hono/secure-headers';
+
 import { Payload, User } from './types';
 
 export type Bindings = {
@@ -10,10 +13,11 @@ export type Bindings = {
   JWT_AUDIENCE?: string;
 };
 
-export type Variables = {
-  payload: Payload;
-  user: User | undefined;
-};
+export type Variables = RequestIdVariables &
+  SecureHeadersVariables & {
+    payload: Payload;
+    user: User | undefined;
+  };
 
 export interface HonoContext {
   Bindings: Bindings;
